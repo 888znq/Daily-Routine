@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Daily Routine Dashboard</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface-color: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #22c55e;
+            --border-color: #334155;
+            --danger-color: #ef4444;
+        }
+
+        /* Edge to Edge setup */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            /* Respects device notches (like iPhone Dynamic Island) */
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .grid-container {
+            display: grid;
+            /* Automatically fits as many columns as possible based on screen size */
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); 
+            gap: 2px; /* Tiny gap for a seamless tile look */
+            width: 100%;
+            background-color: var(--border-color); /* Acts as the grid line color */
+            border: 2px solid var(--border-color);
+            box-sizing: border-box;
+        }
+
+        .grid-item {
+            background-color: var(--surface-color);
+            /* Makes every item a perfect square */
+            aspect-ratio: 1 / 1; 
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .grid-item.active {
+            background-color: var(--accent-color);
+            opacity: 0.8;
+        }
+
+        .grid-item.active .task-label {
+            text-decoration: line-through;
+            color: #ffffff;
+        }
+
+        .grid-item i, .grid-item svg {
+            width: 32px;
+            height: 32px;
+            stroke-width: 2;
+        }
+
+        .task-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #cbd5e1;
+        }
+
+        /* Floating Action Button (FAB) for Reset */
+        .fab-container {
+            position: fixed;
+            bottom: max(24px, env(safe-area-inset-bottom));
+            right: max(24px, env(safe-area-inset-right));
+            z-index: 100;
+        }
+
+        button {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button:active {
+            transform: scale(0.92);
+            background-color: #dc2626;
+        }
+
+        button i, button svg {
+            width: 26px;
+            height: 26px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="grid-container" id="routineGrid"></div>
+
+    <div class="fab-container">
+        <button id="resetBtn" aria-label="Reset Board">
+            <i data-lucide="rotate-ccw"></i>
+        </button>
+    </div>
+
+    <script>
+        const routine = [
+            { icon: 'droplets', label: 'Hydrate' },
+            { icon: 'dumbbell', label: 'Exercise' },
+            { icon: 'mail', label: 'Emails' },
+            { icon: 'trending-up', label: 'Market' },
+            { icon: 'code-2', label: 'Code' },
+            { icon: 'github', label: 'GitHub' },
+            { icon: 'zap', label: 'Deep Work' },
+            { icon: 'utensils', label: 'Lunch' },
+            { icon: 'bitcoin', label: 'Crypto' },
+            { icon: 'terminal', label: 'Scripting' },
+            { icon: 'server', label: 'Logs' },
+            { icon: 'brain', label: 'Focus' },
+            { icon: 'file-text', label: 'Docs' },
+            { icon: 'git-branch', label: 'Refactor' },
+            { icon: 'coffee', label: 'Break' },
+            { icon: 'bar-chart-3', label: 'Trends' },
+            { icon: 'calendar-check', label: 'Planning' },
+            { icon: 'play-circle', label: 'Tutorial' },
+            { icon: 'check-square', label: 'Tests' },
+            { icon: 'rocket', label: 'Deploy' },
+            { icon: 'moon', label: 'Dinner' },
+            { icon: 'book-open', label: 'Read' },
+            { icon: 'layout', label: 'Workspace' },
+            { icon: 'battery-low', label: 'Wind Down' },
+            { icon: 'bed', label: 'Sleep' }
+        ];
+
+        const grid = document.getElementById('routineGrid');
+        const resetBtn = document.getElementById('resetBtn');
+        let savedState = JSON.parse(localStorage.getItem('iconRoutineState')) || Array(routine.length).fill(false);
+
+        function renderGrid() {
+            grid.innerHTML = '';
+            routine.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `grid-item ${savedState[index] ? 'active' : ''}`;
+                
+                const icon = document.createElement('i');
+                icon.setAttribute('data-lucide', item.icon);
+                
+                const label = document.createElement('span');
+                label.className = 'task-label';
+                label.textContent = item.label;
+                
+                div.appendChild(icon);
+                div.appendChild(label);
+                
+                div.onclick = () => {
+                    savedState[index] = !savedState[index];
+                    div.classList.toggle('active');
+                    localStorage.setItem('iconRoutineState', JSON.stringify(savedState));
+                };
+                grid.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        resetBtn.onclick = () => {
+            savedState = Array(routine.length).fill(false);
+            localStorage.setItem('iconRoutineState', JSON.stringify(savedState));
+            renderGrid();
+        };
+
+        renderGrid();
+    </script>
+</body>
+</html>
