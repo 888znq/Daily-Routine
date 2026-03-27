@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Daily Routine Dashboard</title>
+    <title>Realistic Dashboard</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
@@ -13,39 +13,60 @@
             --accent-color: #22c55e;
             --border-color: #334155;
             --danger-color: #ef4444;
+            --calc-op: #3b82f6;
+            
+            /* Realistic Shadow Palette */
+            --shadow-ambient: rgba(0, 0, 0, 0.3);
+            --shadow-deep: rgba(0, 0, 0, 0.7);
+            --highlight-rim: rgba(255, 255, 255, 0.1);
         }
 
-        /* Edge to Edge setup */
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
             padding: 0;
-            /* Respects device notches (like iPhone Dynamic Island) */
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
             padding-left: env(safe-area-inset-left);
             padding-right: env(safe-area-inset-right);
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+            transition: background 0.3s ease; 
         }
 
-        .grid-container {
-            display: grid;
-            /* Automatically fits as many columns as possible based on screen size */
-            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); 
-            gap: 2px; /* Tiny gap for a seamless tile look */
+        /* --- STATIC RAINBOW MODE --- */
+        .rainbow-mode {
+            background: linear-gradient(135deg, #ff2a2a, #ff7a00, #ffd700, #00d34b, #00a1ff, #a100ff, #ff007c);
+        }
+
+        /* --- VIEW MANAGEMENT --- */
+        .app-view {
+            display: none; 
             width: 100%;
-            background-color: var(--border-color); /* Acts as the grid line color */
+            height: 100%;
+            overflow-y: auto; 
+        }
+        
+        .app-view.active {
+            display: flex;
+        }
+
+        /* --- ROUTINE APP STYLES (Added subtle depth) --- */
+        #routineApp.active {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); 
+            gap: 2px;
+            background-color: var(--border-color);
             border: 2px solid var(--border-color);
-            box-sizing: border-box;
+            align-content: start; 
         }
 
         .grid-item {
             background-color: var(--surface-color);
-            /* Makes every item a perfect square */
             aspect-ratio: 1 / 1; 
             padding: 10px;
             display: flex;
@@ -57,14 +78,17 @@
             transition: all 0.2s ease;
             text-align: center;
             -webkit-tap-highlight-color: transparent;
+            /* Subtle depth for items */
+            box-shadow: inset 0 1px 1px var(--highlight-rim);
         }
 
-        .grid-item.active {
+        .grid-item.active-task {
             background-color: var(--accent-color);
             opacity: 0.8;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.4); /* Look pressed */
         }
 
-        .grid-item.active .task-label {
+        .grid-item.active-task .task-label {
             text-decoration: line-through;
             color: #ffffff;
         }
@@ -81,52 +105,240 @@
             color: #cbd5e1;
         }
 
-        /* Floating Action Button (FAB) for Reset */
-        .fab-container {
-            position: fixed;
-            bottom: max(24px, env(safe-area-inset-bottom));
-            right: max(24px, env(safe-area-inset-right));
-            z-index: 100;
+        /* --- CALCULATOR APP STYLES (Hyper-Realistic) --- */
+        #calculatorApp {
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 15px; 
+            padding-bottom: 120px; /* More space for the massive shadow */
+            box-sizing: border-box;
+            max-width: 600px; 
+            margin: 0 auto;
+            
+            /* The realistic "panel" that floats over the rainbow */
+            background-color: rgba(15, 23, 42, 0.7); /* translucent dark panel */
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 24px;
+            border: 1px solid var(--highlight-rim);
+            margin-top: 20px;
+            margin-bottom: 20px;
+            height: calc(100% - 40px);
+
+            /* DEEPEST AMBIENT SHADOWS for massive realism */
+            box-shadow: 
+                0 10px 15px -3px var(--shadow-ambient), /* Base shadow */
+                0 25px 50px -12px rgba(0, 0, 0, 0.8), /* Extremely deep blur shadow */
+                0 0 100px 10px rgba(0,0,0,0.5), /* wide glow area */
+                inset 0 1px 0 var(--highlight-rim); /* Top highlight rim for panel */
         }
 
-        button {
-            background-color: var(--danger-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
+        .calc-display {
+            font-size: 5rem; 
+            text-align: right;
+            margin-bottom: 2rem;
+            padding-right: 15px;
+            word-wrap: break-word;
+            font-weight: 300;
+            color: #a7f3d0; /* subtle green LED tint */
+            line-height: 1;
+            
+            /* Looks recessed into the panel */
+            background-color: rgba(0,0,0,0.4);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 
+                inset 0 4px 10px rgba(0,0,0,0.8), /* DEEP recessed shadow */
+                inset 0 -1px 0 rgba(255,255,255,0.05), /* bottom highlight */
+                0 2px 2px rgba(0,0,0,0.3); /* slight shadow under the display bezel */
+            text-shadow: 0 0 15px #22c55e; /* realistic LED glow */
+        }
+
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px; /* Slightly tighter gap to fulfill previous request */
+        }
+
+        .calc-btn {
+            background-color: rgba(255, 255, 255, 0.03); 
+            color: #ffffff;
+            /* Thin, tight rectangular border */
+            border: 1.5px solid rgba(255, 255, 255, 0.6); 
+            border-radius: 8px;
+            padding: 10px 0; /* Very tight spacing inside border */
+            font-size: 3.2rem; 
+            line-height: 1; 
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s ease;
+            -webkit-tap-highlight-color: transparent;
+            
+            /* REALISTIC 3D BUTTON LOOK (multiple layered shadows) */
+            box-shadow: 
+                0 2px 0 0 rgba(0, 0, 0, 0.8), /* Dark base layer (the "lip") */
+                0 4px 6px -1px var(--shadow-deep), /* directional shadow */
+                inset 0 1px 0 var(--highlight-rim); /* top light catching rim */
+            text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+        }
+
+        .calc-btn:active { 
+            /* Looks physically pressed in */
+            transform: translateY(2px);
+            background-color: rgba(255, 255, 255, 0.15); 
+            border-color: rgba(255, 255, 255, 0.3);
+            
+            /* Remove elevated shadows, add deep inner shadow */
+            box-shadow: 
+                0 0 0 0 transparent,
+                inset 0 4px 8px var(--shadow-deep); 
+        }
+        
+        .calc-btn.op { 
+            color: #000000; 
+            border-color: rgba(0, 0, 0, 0.4); 
+            background-color: rgba(255, 255, 255, 0.2); 
+            text-shadow: none;
+            font-size: 3.5rem; 
+            box-shadow: 
+                0 2px 0 0 rgba(0, 0, 0, 0.4),
+                0 4px 6px -1px var(--shadow-deep),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+        
+        .calc-btn.op:active {
+            box-shadow: 
+                0 0 0 0 transparent,
+                inset 0 4px 8px rgba(0, 0, 0, 0.5); 
+        }
+
+        .calc-btn.action { 
+            color: #ffffff; 
+            border-color: rgba(255,255,255,0.9);
+            font-weight: 600;
+        }
+        
+        .calc-btn.zero { 
+            grid-column: span 2; 
+        }
+
+        /* --- DEEP SHADOW FLOATING BUTTONS (FABs) --- */
+        .fab {
+            position: fixed;
+            bottom: max(24px, env(safe-area-inset-bottom));
             width: 60px;
             height: 60px;
+            border: none;
+            border-radius: 50%;
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
-            transition: transform 0.2s ease, background-color 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            z-index: 101; /* Above the calculator panel shadow */
             -webkit-tap-highlight-color: transparent;
+            
+            /* REALISTIC HIGH-ALTITUDE FLOATING SHADOW */
+            box-shadow: 
+                0 6px 10px -2px rgba(0,0,0,0.3), /* Ambient OC */
+                0 15px 30px -5px rgba(0,0,0,0.6), /* DEEP soft shadow */
+                inset 0 1px 1px var(--highlight-rim); /* surface rim */
         }
 
-        button:active {
-            transform: scale(0.92);
-            background-color: #dc2626;
+        .fab:active { 
+            transform: scale(0.92) translateY(3px);
+            /* shadow closes in when pressed */
+            box-shadow: 
+                0 2px 4px -1px rgba(0,0,0,0.3),
+                0 6px 10px -2px rgba(0,0,0,0.6); 
+        }
+        .fab i { width: 26px; height: 26px; }
+
+        #switchBtn {
+            left: max(24px, env(safe-area-inset-left));
+            background-color: rgba(30, 41, 59, 0.95); 
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
-        button i, button svg {
-            width: 26px;
-            height: 26px;
+        #resetBtn {
+            right: max(24px, env(safe-area-inset-right));
+            background-color: var(--danger-color);
         }
     </style>
 </head>
 <body>
 
-    <div class="grid-container" id="routineGrid"></div>
+    <div id="routineApp" class="app-view active"></div>
 
-    <div class="fab-container">
-        <button id="resetBtn" aria-label="Reset Board">
-            <i data-lucide="rotate-ccw"></i>
-        </button>
+    <div id="calculatorApp" class="app-view">
+        <div class="calc-display" id="calcDisplay">0</div>
+        <div class="calc-grid">
+            <button class="calc-btn action" onclick="calcAction('C')">C</button>
+            <button class="calc-btn action" onclick="calcAction('DEL')"><i data-lucide="delete" style="width:36px; height:36px;"></i></button>
+            <button class="calc-btn op" onclick="calcAction('%')">%</button>
+            <button class="calc-btn op" onclick="calcAction('/')">÷</button>
+            
+            <button class="calc-btn" onclick="calcAction('7')">7</button>
+            <button class="calc-btn" onclick="calcAction('8')">8</button>
+            <button class="calc-btn" onclick="calcAction('9')">9</button>
+            <button class="calc-btn op" onclick="calcAction('*')">×</button>
+            
+            <button class="calc-btn" onclick="calcAction('4')">4</button>
+            <button class="calc-btn" onclick="calcAction('5')">5</button>
+            <button class="calc-btn" onclick="calcAction('6')">6</button>
+            <button class="calc-btn op" onclick="calcAction('-')">−</button>
+            
+            <button class="calc-btn" onclick="calcAction('1')">1</button>
+            <button class="calc-btn" onclick="calcAction('2')">2</button>
+            <button class="calc-btn" onclick="calcAction('3')">3</button>
+            <button class="calc-btn op" onclick="calcAction('+')">+</button>
+            
+            <button class="calc-btn zero" onclick="calcAction('0')">0</button>
+            <button class="calc-btn" onclick="calcAction('.')">.</button>
+            <button class="calc-btn op" onclick="calcAction('=')">=</button>
+        </div>
     </div>
 
+    <button id="switchBtn" class="fab" aria-label="Switch App">
+        <i data-lucide="calculator" id="switchIcon"></i>
+    </button>
+    
+    <button id="resetBtn" class="fab" aria-label="Reset Routine">
+        <i data-lucide="rotate-ccw"></i>
+    </button>
+
     <script>
+        // --- 1. APP SWITCHER LOGIC ---
+        let currentApp = 'routine';
+        const routineApp = document.getElementById('routineApp');
+        const calcApp = document.getElementById('calculatorApp');
+        const resetBtn = document.getElementById('resetBtn');
+        const switchIcon = document.getElementById('switchIcon');
+
+        document.getElementById('switchBtn').onclick = () => {
+            if (currentApp === 'routine') {
+                routineApp.classList.remove('active');
+                calcApp.classList.add('active');
+                resetBtn.style.display = 'none'; 
+                switchIcon.setAttribute('data-lucide', 'layout-grid'); 
+                document.body.classList.add('rainbow-mode'); 
+                currentApp = 'calculator';
+            } else {
+                calcApp.classList.remove('active');
+                routineApp.classList.add('active');
+                resetBtn.style.display = 'flex'; 
+                switchIcon.setAttribute('data-lucide', 'calculator'); 
+                document.body.classList.remove('rainbow-mode'); 
+                currentApp = 'routine';
+            }
+            lucide.createIcons(); 
+        };
+
+        // --- 2. ROUTINE TRACKER LOGIC ---
         const routine = [
             { icon: 'droplets', label: 'Hydrate' },
             { icon: 'dumbbell', label: 'Exercise' },
@@ -155,15 +367,13 @@
             { icon: 'bed', label: 'Sleep' }
         ];
 
-        const grid = document.getElementById('routineGrid');
-        const resetBtn = document.getElementById('resetBtn');
         let savedState = JSON.parse(localStorage.getItem('iconRoutineState')) || Array(routine.length).fill(false);
 
         function renderGrid() {
-            grid.innerHTML = '';
+            routineApp.innerHTML = '';
             routine.forEach((item, index) => {
                 const div = document.createElement('div');
-                div.className = `grid-item ${savedState[index] ? 'active' : ''}`;
+                div.className = `grid-item ${savedState[index] ? 'active-task' : ''}`;
                 
                 const icon = document.createElement('i');
                 icon.setAttribute('data-lucide', item.icon);
@@ -177,10 +387,10 @@
                 
                 div.onclick = () => {
                     savedState[index] = !savedState[index];
-                    div.classList.toggle('active');
+                    div.classList.toggle('active-task');
                     localStorage.setItem('iconRoutineState', JSON.stringify(savedState));
                 };
-                grid.appendChild(div);
+                routineApp.appendChild(div);
             });
             lucide.createIcons();
         }
@@ -190,8 +400,42 @@
             localStorage.setItem('iconRoutineState', JSON.stringify(savedState));
             renderGrid();
         };
-
+        
         renderGrid();
+
+        // --- 3. CALCULATOR LOGIC ---
+        const display = document.getElementById('calcDisplay');
+        let calcExpr = '';
+
+        function calcAction(val) {
+            if (val === 'C') {
+                calcExpr = '';
+                display.innerText = '0';
+            } else if (val === 'DEL') {
+                calcExpr = calcExpr.slice(0, -1);
+                display.innerText = calcExpr || '0';
+            } else if (val === '=') {
+                try {
+                    let safeExpr = calcExpr.replace(/×/g, '*').replace(/÷/g, '/');
+                    let result = new Function('return ' + safeExpr)();
+                    result = Math.round(result * 100000000) / 100000000; 
+                    display.innerText = result;
+                    calcExpr = result.toString();
+                } catch (e) {
+                    display.innerText = 'Error';
+                    calcExpr = '';
+                }
+            } else {
+                if (calcExpr === '0' && val !== '.') calcExpr = '';
+                
+                let visualVal = val;
+                if(val === '*') visualVal = '×';
+                if(val === '/') visualVal = '÷';
+                
+                calcExpr += visualVal;
+                display.innerText = calcExpr;
+            }
+        }
     </script>
 </body>
 </html>
