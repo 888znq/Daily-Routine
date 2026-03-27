@@ -13,9 +13,9 @@
             --accent-color: #22c55e;
             --border-color: #334155;
             --danger-color: #ef4444;
+            --edit-color: #f59e0b;
             --calc-op: #3b82f6;
             
-            /* Realistic Shadow Palette */
             --shadow-ambient: rgba(0, 0, 0, 0.3);
             --shadow-deep: rgba(0, 0, 0, 0.7);
             --highlight-rim: rgba(255, 255, 255, 0.1);
@@ -49,16 +49,18 @@
             width: 100%;
             height: 100%;
             overflow-y: auto; 
+            padding-bottom: 120px; /* Space for FABs */
         }
         
         .app-view.active {
             display: flex;
         }
 
-        /* --- ROUTINE APP STYLES (Added subtle depth) --- */
+        /* --- ROUTINE APP STYLES --- */
         #routineApp.active {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); 
+            /* Strict 4 column layout */
+            grid-template-columns: repeat(4, 1fr); 
             gap: 2px;
             background-color: var(--border-color);
             border: 2px solid var(--border-color);
@@ -78,14 +80,13 @@
             transition: all 0.2s ease;
             text-align: center;
             -webkit-tap-highlight-color: transparent;
-            /* Subtle depth for items */
             box-shadow: inset 0 1px 1px var(--highlight-rim);
         }
 
         .grid-item.active-task {
             background-color: var(--accent-color);
             opacity: 0.8;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.4); /* Look pressed */
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.4); 
         }
 
         .grid-item.active-task .task-label {
@@ -94,8 +95,8 @@
         }
 
         .grid-item i, .grid-item svg {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             stroke-width: 2;
         }
 
@@ -103,20 +104,46 @@
             font-size: 0.75rem;
             font-weight: 500;
             color: #cbd5e1;
+            word-break: break-word;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Prevents text from overflowing */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
-        /* --- CALCULATOR APP STYLES (Hyper-Realistic) --- */
+        /* Empty State Styling */
+        .grid-item.empty i {
+            opacity: 0.2;
+        }
+
+        /* Add Box Button Styling */
+        .grid-item.add-btn {
+            background-color: rgba(255,255,255,0.05);
+            border: 1px dashed rgba(255,255,255,0.2);
+        }
+
+        /* Edit Mode Animation */
+        .edit-mode-active .grid-item:not(.empty):not(.add-btn) {
+            border: 1px solid var(--edit-color);
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
+        /* --- CALCULATOR APP STYLES --- */
         #calculatorApp {
             flex-direction: column;
             justify-content: flex-end;
             padding: 15px; 
-            padding-bottom: 120px; /* More space for the massive shadow */
+            padding-bottom: 120px; 
             box-sizing: border-box;
             max-width: 600px; 
             margin: 0 auto;
-            
-            /* The realistic "panel" that floats over the rainbow */
-            background-color: rgba(15, 23, 42, 0.7); /* translucent dark panel */
+            background-color: rgba(15, 23, 42, 0.7); 
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             border-radius: 24px;
@@ -124,13 +151,11 @@
             margin-top: 20px;
             margin-bottom: 20px;
             height: calc(100% - 40px);
-
-            /* DEEPEST AMBIENT SHADOWS for massive realism */
             box-shadow: 
-                0 10px 15px -3px var(--shadow-ambient), /* Base shadow */
-                0 25px 50px -12px rgba(0, 0, 0, 0.8), /* Extremely deep blur shadow */
-                0 0 100px 10px rgba(0,0,0,0.5), /* wide glow area */
-                inset 0 1px 0 var(--highlight-rim); /* Top highlight rim for panel */
+                0 10px 15px -3px var(--shadow-ambient), 
+                0 25px 50px -12px rgba(0, 0, 0, 0.8), 
+                0 0 100px 10px rgba(0,0,0,0.5), 
+                inset 0 1px 0 var(--highlight-rim); 
         }
 
         .calc-display {
@@ -140,33 +165,30 @@
             padding-right: 15px;
             word-wrap: break-word;
             font-weight: 300;
-            color: #a7f3d0; /* subtle green LED tint */
+            color: #a7f3d0; 
             line-height: 1;
-            
-            /* Looks recessed into the panel */
             background-color: rgba(0,0,0,0.4);
             padding: 15px;
             border-radius: 12px;
             box-shadow: 
-                inset 0 4px 10px rgba(0,0,0,0.8), /* DEEP recessed shadow */
-                inset 0 -1px 0 rgba(255,255,255,0.05), /* bottom highlight */
-                0 2px 2px rgba(0,0,0,0.3); /* slight shadow under the display bezel */
-            text-shadow: 0 0 15px #22c55e; /* realistic LED glow */
+                inset 0 4px 10px rgba(0,0,0,0.8), 
+                inset 0 -1px 0 rgba(255,255,255,0.05), 
+                0 2px 2px rgba(0,0,0,0.3); 
+            text-shadow: 0 0 15px #22c55e; 
         }
 
         .calc-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px; /* Slightly tighter gap to fulfill previous request */
+            gap: 8px; 
         }
 
         .calc-btn {
             background-color: rgba(255, 255, 255, 0.03); 
             color: #ffffff;
-            /* Thin, tight rectangular border */
             border: 1.5px solid rgba(255, 255, 255, 0.6); 
             border-radius: 8px;
-            padding: 10px 0; /* Very tight spacing inside border */
+            padding: 10px 0; 
             font-size: 3.2rem; 
             line-height: 1; 
             font-weight: 500;
@@ -176,22 +198,17 @@
             justify-content: center;
             transition: all 0.1s ease;
             -webkit-tap-highlight-color: transparent;
-            
-            /* REALISTIC 3D BUTTON LOOK (multiple layered shadows) */
             box-shadow: 
-                0 2px 0 0 rgba(0, 0, 0, 0.8), /* Dark base layer (the "lip") */
-                0 4px 6px -1px var(--shadow-deep), /* directional shadow */
-                inset 0 1px 0 var(--highlight-rim); /* top light catching rim */
+                0 2px 0 0 rgba(0, 0, 0, 0.8), 
+                0 4px 6px -1px var(--shadow-deep), 
+                inset 0 1px 0 var(--highlight-rim); 
             text-shadow: 0 2px 4px rgba(0,0,0,0.6);
         }
 
         .calc-btn:active { 
-            /* Looks physically pressed in */
             transform: translateY(2px);
             background-color: rgba(255, 255, 255, 0.15); 
             border-color: rgba(255, 255, 255, 0.3);
-            
-            /* Remove elevated shadows, add deep inner shadow */
             box-shadow: 
                 0 0 0 0 transparent,
                 inset 0 4px 8px var(--shadow-deep); 
@@ -221,14 +238,11 @@
             font-weight: 600;
         }
         
-        .calc-btn.zero { 
-            grid-column: span 2; 
-        }
+        .calc-btn.zero { grid-column: span 2; }
 
-        /* --- DEEP SHADOW FLOATING BUTTONS (FABs) --- */
+        /* --- FABs --- */
         .fab {
             position: fixed;
-            bottom: max(24px, env(safe-area-inset-bottom));
             width: 60px;
             height: 60px;
             border: none;
@@ -238,36 +252,51 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            z-index: 101; /* Above the calculator panel shadow */
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s;
+            z-index: 101; 
             -webkit-tap-highlight-color: transparent;
-            
-            /* REALISTIC HIGH-ALTITUDE FLOATING SHADOW */
             box-shadow: 
-                0 6px 10px -2px rgba(0,0,0,0.3), /* Ambient OC */
-                0 15px 30px -5px rgba(0,0,0,0.6), /* DEEP soft shadow */
-                inset 0 1px 1px var(--highlight-rim); /* surface rim */
+                0 6px 10px -2px rgba(0,0,0,0.3), 
+                0 15px 30px -5px rgba(0,0,0,0.6), 
+                inset 0 1px 1px var(--highlight-rim); 
         }
 
         .fab:active { 
             transform: scale(0.92) translateY(3px);
-            /* shadow closes in when pressed */
             box-shadow: 
                 0 2px 4px -1px rgba(0,0,0,0.3),
                 0 6px 10px -2px rgba(0,0,0,0.6); 
         }
         .fab i { width: 26px; height: 26px; }
 
+        /* Switcher (Bottom Left) */
         #switchBtn {
+            bottom: max(24px, env(safe-area-inset-bottom));
             left: max(24px, env(safe-area-inset-left));
             background-color: rgba(30, 41, 59, 0.95); 
             border: 1px solid rgba(255,255,255,0.2);
         }
 
+        /* Routine Reset (Bottom Right) */
         #resetBtn {
+            bottom: max(24px, env(safe-area-inset-bottom));
             right: max(24px, env(safe-area-inset-right));
             background-color: var(--danger-color);
         }
+
+        /* Edit Toggle (Above Reset) */
+        #editBtn {
+            bottom: max(100px, calc(env(safe-area-inset-bottom) + 100px));
+            right: max(24px, env(safe-area-inset-right));
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+        }
+
+        #editBtn.active {
+            background-color: var(--edit-color);
+            border-color: #fff;
+        }
+
     </style>
 </head>
 <body>
@@ -307,6 +336,10 @@
         <i data-lucide="calculator" id="switchIcon"></i>
     </button>
     
+    <button id="editBtn" class="fab" aria-label="Edit Routine">
+        <i data-lucide="pencil"></i>
+    </button>
+
     <button id="resetBtn" class="fab" aria-label="Reset Routine">
         <i data-lucide="rotate-ccw"></i>
     </button>
@@ -317,6 +350,7 @@
         const routineApp = document.getElementById('routineApp');
         const calcApp = document.getElementById('calculatorApp');
         const resetBtn = document.getElementById('resetBtn');
+        const editBtn = document.getElementById('editBtn');
         const switchIcon = document.getElementById('switchIcon');
 
         document.getElementById('switchBtn').onclick = () => {
@@ -324,6 +358,7 @@
                 routineApp.classList.remove('active');
                 calcApp.classList.add('active');
                 resetBtn.style.display = 'none'; 
+                editBtn.style.display = 'none'; // Hide edit button in calc
                 switchIcon.setAttribute('data-lucide', 'layout-grid'); 
                 document.body.classList.add('rainbow-mode'); 
                 currentApp = 'calculator';
@@ -331,6 +366,7 @@
                 calcApp.classList.remove('active');
                 routineApp.classList.add('active');
                 resetBtn.style.display = 'flex'; 
+                editBtn.style.display = 'flex'; 
                 switchIcon.setAttribute('data-lucide', 'calculator'); 
                 document.body.classList.remove('rainbow-mode'); 
                 currentApp = 'routine';
@@ -338,67 +374,99 @@
             lucide.createIcons(); 
         };
 
-        // --- 2. ROUTINE TRACKER LOGIC ---
-        const routine = [
-            { icon: 'droplets', label: 'Hydrate' },
-            { icon: 'dumbbell', label: 'Exercise' },
-            { icon: 'mail', label: 'Emails' },
-            { icon: 'trending-up', label: 'Market' },
-            { icon: 'code-2', label: 'Code' },
-            { icon: 'github', label: 'GitHub' },
-            { icon: 'zap', label: 'Deep Work' },
-            { icon: 'utensils', label: 'Lunch' },
-            { icon: 'bitcoin', label: 'Crypto' },
-            { icon: 'terminal', label: 'Scripting' },
-            { icon: 'server', label: 'Logs' },
-            { icon: 'brain', label: 'Focus' },
-            { icon: 'file-text', label: 'Docs' },
-            { icon: 'git-branch', label: 'Refactor' },
-            { icon: 'coffee', label: 'Break' },
-            { icon: 'bar-chart-3', label: 'Trends' },
-            { icon: 'calendar-check', label: 'Planning' },
-            { icon: 'play-circle', label: 'Tutorial' },
-            { icon: 'check-square', label: 'Tests' },
-            { icon: 'rocket', label: 'Deploy' },
-            { icon: 'moon', label: 'Dinner' },
-            { icon: 'book-open', label: 'Read' },
-            { icon: 'layout', label: 'Workspace' },
-            { icon: 'battery-low', label: 'Wind Down' },
-            { icon: 'bed', label: 'Sleep' }
-        ];
+        // --- 2. DYNAMIC ROUTINE TRACKER LOGIC ---
+        // Initialize with 20 empty objects if no local storage exists
+        let savedState = JSON.parse(localStorage.getItem('dynamicRoutine')) || Array.from({length: 20}, () => ({ text: '', done: false }));
+        let isEditMode = false;
 
-        let savedState = JSON.parse(localStorage.getItem('iconRoutineState')) || Array(routine.length).fill(false);
+        editBtn.onclick = () => {
+            isEditMode = !isEditMode;
+            editBtn.classList.toggle('active');
+            if(isEditMode) {
+                routineApp.classList.add('edit-mode-active');
+            } else {
+                routineApp.classList.remove('edit-mode-active');
+            }
+        };
+
+        function saveAndRender() {
+            localStorage.setItem('dynamicRoutine', JSON.stringify(savedState));
+            renderGrid();
+        }
 
         function renderGrid() {
             routineApp.innerHTML = '';
-            routine.forEach((item, index) => {
+            
+            // Render Tasks
+            savedState.forEach((item, index) => {
                 const div = document.createElement('div');
-                div.className = `grid-item ${savedState[index] ? 'active-task' : ''}`;
                 
-                const icon = document.createElement('i');
-                icon.setAttribute('data-lucide', item.icon);
-                
-                const label = document.createElement('span');
-                label.className = 'task-label';
-                label.textContent = item.label;
-                
-                div.appendChild(icon);
-                div.appendChild(label);
-                
-                div.onclick = () => {
-                    savedState[index] = !savedState[index];
-                    div.classList.toggle('active-task');
-                    localStorage.setItem('iconRoutineState', JSON.stringify(savedState));
-                };
+                if (!item.text) {
+                    // Blank Box
+                    div.className = 'grid-item empty';
+                    div.innerHTML = `<i data-lucide="plus"></i>`;
+                    div.onclick = () => {
+                        let taskName = prompt("Enter a new task:");
+                        if (taskName && taskName.trim() !== "") {
+                            savedState[index].text = taskName.trim();
+                            saveAndRender();
+                        }
+                    };
+                } else {
+                    // Filled Task Box
+                    div.className = `grid-item ${item.done ? 'active-task' : ''}`;
+                    // Using a generic check-circle for custom user tasks
+                    div.innerHTML = `
+                        <i data-lucide="check-circle-2"></i>
+                        <span class="task-label">${item.text}</span>
+                    `;
+                    
+                    div.onclick = () => {
+                        if (isEditMode) {
+                            let newName = prompt("Edit task (leave blank to delete):", item.text);
+                            if (newName === null) return; // Cancelled
+                            
+                            if (newName.trim() === "") {
+                                savedState[index].text = ""; // Clears the box
+                                savedState[index].done = false;
+                            } else {
+                                savedState[index].text = newName.trim();
+                            }
+                            saveAndRender();
+                        } else {
+                            // Toggle Done Status
+                            savedState[index].done = !savedState[index].done;
+                            saveAndRender();
+                        }
+                    };
+                }
                 routineApp.appendChild(div);
             });
+
+            // Add "Add Box" Tile at the end
+            const addDiv = document.createElement('div');
+            addDiv.className = 'grid-item add-btn';
+            addDiv.innerHTML = `
+                <i data-lucide="layout-plus" style="opacity:0.5;"></i>
+                <span class="task-label" style="opacity:0.5;">Add Box</span>
+            `;
+            addDiv.onclick = () => {
+                savedState.push({ text: '', done: false });
+                saveAndRender();
+                // Auto-scroll to bottom to see new box
+                routineApp.scrollTop = routineApp.scrollHeight;
+            };
+            routineApp.appendChild(addDiv);
+
             lucide.createIcons();
         }
 
+        // Reset clears only the 'done' status, not the text!
         resetBtn.onclick = () => {
-            savedState = Array(routine.length).fill(false);
-            localStorage.setItem('iconRoutineState', JSON.stringify(savedState));
-            renderGrid();
+            if (confirm("Reset all checks for today?")) {
+                savedState = savedState.map(item => ({ ...item, done: false }));
+                saveAndRender();
+            }
         };
         
         renderGrid();
